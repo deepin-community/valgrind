@@ -6,3 +6,4 @@
 10_mpi-pkg-config.patch
 11_arm64-cache-flush.patch
 13_fix-path-to-vgdb.patch
+armhf_neon.patch
