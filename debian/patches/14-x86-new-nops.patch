@@ -10,11 +10,9 @@ with both clang and gcc (oddly enough gcc was more difficult) so
 I just resorted to using .byte arrays.
 ---
 
-diff --git a/VEX/priv/guest_x86_toIR.c b/VEX/priv/guest_x86_toIR.c
-index 5d6e6dc64f..3b6efb3873 100644
 --- a/VEX/priv/guest_x86_toIR.c
 +++ b/VEX/priv/guest_x86_toIR.c
-@@ -8198,7 +8198,7 @@ DisResult disInstr_X86_WRK (
+@@ -8198,7 +8198,7 @@
           delta += 5;
           goto decode_success;
        }
@@ -23,10 +21,11 @@ index 5d6e6dc64f..3b6efb3873 100644
           all variants of which are: nopw %cs:0x0(%eax,%eax,1)
           66 2e 0f 1f 84 00 00 00 00 00
           66 66 2e 0f 1f 84 00 00 00 00 00
-@@ -8223,6 +8223,26 @@ DisResult disInstr_X86_WRK (
+@@ -8222,6 +8222,26 @@
+             goto decode_success;
           }
        }
- 
++
 +      /* bug478624 GNU binutils uses a leal of esi into itself with
 +         a zero offset and CS prefix as an 8 byte no-op (Dec 2023).
 +         Since the CS prefix is hardly ever used we don't do much
@@ -46,15 +45,12 @@ index 5d6e6dc64f..3b6efb3873 100644
 +            goto decode_success;
 +         }
 +      }
-+
+ 
        // Intel CET requires the following opcodes to be treated as NOPs
        // with any prefix and ModRM, SIB and disp combination:
-       // "0F 19", "0F 1C", "0F 1D", "0F 1E", "0F 1F"
-diff --git a/none/tests/x86/Makefile.am b/none/tests/x86/Makefile.am
-index 3ecd1ad3c2..dbae865712 100644
 --- a/none/tests/x86/Makefile.am
 +++ b/none/tests/x86/Makefile.am
-@@ -52,6 +52,7 @@ EXTRA_DIST = \
+@@ -52,6 +52,7 @@
  	fxtract.stdout.exp fxtract.stderr.exp fxtract.vgtest \
  	fxtract.stdout.exp-older-glibc \
  	getseg.stdout.exp getseg.stderr.exp getseg.vgtest \
@@ -62,7 +58,7 @@ index 3ecd1ad3c2..dbae865712 100644
  	incdec_alt.stdout.exp incdec_alt.stderr.exp incdec_alt.vgtest \
  	int.stderr.exp int.stdout.exp int.disabled \
  	$(addsuffix .stderr.exp,$(INSN_TESTS)) \
-@@ -100,6 +101,7 @@ check_PROGRAMS = \
+@@ -100,6 +101,7 @@
  	fpu_lazy_eflags \
  	fxtract \
  	getseg \
@@ -70,9 +66,6 @@ index 3ecd1ad3c2..dbae865712 100644
  	incdec_alt \
  	$(INSN_TESTS) \
  	int \
-diff --git a/none/tests/x86/gnu_binutils_nop.c b/none/tests/x86/gnu_binutils_nop.c
-new file mode 100644
-index 0000000000..412a4c2cbc
 --- /dev/null
 +++ b/none/tests/x86/gnu_binutils_nop.c
 @@ -0,0 +1,34 @@
@@ -110,12 +103,6 @@ index 0000000000..412a4c2cbc
 +    //__asm__ __volatile__("leal %cs:0L(%esi,%eiz),%esi");
 +    __asm__ __volatile__(".byte 0x2e,0x8d,0xb4,0x26,0x00,0x00,0x00,0x00");
 +}
-diff --git a/none/tests/x86/gnu_binutils_nop.stderr.exp b/none/tests/x86/gnu_binutils_nop.stderr.exp
-new file mode 100644
-index 0000000000..e69de29bb2
-diff --git a/none/tests/x86/gnu_binutils_nop.vgtest b/none/tests/x86/gnu_binutils_nop.vgtest
-new file mode 100644
-index 0000000000..7f378dd53b
 --- /dev/null
 +++ b/none/tests/x86/gnu_binutils_nop.vgtest
 @@ -0,0 +1,2 @@

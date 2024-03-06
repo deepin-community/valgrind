@@ -8,3 +8,4 @@
 13_fix-path-to-vgdb.patch
 armhf_neon.patch
 14-x86-new-nops.patch
+15-add-loongarch-support.patch
